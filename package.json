@@ -1,0 +1,21 @@
+{
+  "name": "@nodeauth/autherntication-pg",
+  "version": "0.0.1",
+  "description": "pg plugin for @nodeauth/Authentication",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "keywords": [
+    "pg",
+    "pg-auth",
+    "auth",
+    "node",
+    "token"
+  ],
+  "author": "jake cukjati",
+  "license": "ISC",
+  "dependencies": {
+    "@nodeauth/authentication": "^0.0.1"
+  }
+}
