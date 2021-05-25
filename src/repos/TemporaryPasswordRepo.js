@@ -12,7 +12,11 @@ class TemporaryPasswordRepo extends RDS.RDS1 {
   }
 
   async insertNewUserIdAndPassword (userid, newRandomPassword, createdTimestamp) {
-    return this._insert({id: userid.toLowerCase(), password: newRandomPassword})
+    return this._insert({id: userid.toLowerCase(), password: newRandomPassword}).then(resp => {
+      resp.userId = resp.id
+      delete resp.id
+      return resp
+    })
   }
 
   async selectTemporaryPasswordById (userid) {

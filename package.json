@@ -1,10 +1,11 @@
 {
-  "name": "@nodeauth/autherntication-pg",
+  "name": "@nodeauth/auth-pg",
   "version": "0.0.1",
   "description": "pg plugin for @nodeauth/Authentication",
   "main": "index.js",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "test": "export AUTH_ENV=dev && mocha --file src/tests/setup_test.js $(find src/tests/* -name '*.nc.test.js')",
+    "test-complete": "export AUTH_ENV=dev && mocha --file src/tests/setup_test.js $(find src/tests/* -name '*.complete.test.js')"
   },
   "keywords": [
     "pg",
@@ -16,6 +17,12 @@
   "author": "jake cukjati",
   "license": "ISC",
   "dependencies": {
-    "@nodeauth/authentication": "^0.0.1"
+    "@nodeauth/authentication": "^0.0.1",
+    "pg": "^8.6.0",
+    "uuid": "^8.3.2"
+  },
+  "devDependencies": {
+    "chai": "^4.3.4",
+    "dotenv": "^10.0.0"
   }
 }

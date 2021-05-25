@@ -1,4 +1,5 @@
 const RDS = require('../serverlogic/RDS')
+const {v4: uuid4} = require('uuid')
 
 class UserRepo extends RDS.RDS1 {
   constructor(options) {
@@ -47,7 +48,9 @@ class UserRepo extends RDS.RDS1 {
   }
 
   async verifyUser (userId) {
-    return await this._update({user_id: userId.toLowerCase(), verified: true})
+    return await this._update({user_id: userId.toLowerCase(), verified: true}).then(res => {
+      return true
+    })
   }
 
   // TODO Currently not used in the Plugin

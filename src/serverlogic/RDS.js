@@ -3,6 +3,15 @@ const { Client } = require('pg');
 const {v4: uuid4} = require('uuid');
 
 /**
+ * to log please set the environment variable RDS_DEBUG_LOGS
+ */
+const log = function () {
+  if (process.env.RDS_DEBUG_LOGS) {
+    console.log(arguments)
+  }
+}
+
+/**
  * config.postgres is the config value currently
  */
 
@@ -319,7 +328,7 @@ const SQL = {
       // TODO NOTE that the columns will be set differently based off the Column Type
       return `${key} = '${SQL._toSQLString(record[key])}'`
     })
-    console.log(record)
+    log(record)
     let sql = `UPDATE ${t} SET ${columnsSetValues.join(', ')} WHERE ${PID.whereFromRecord(record)}`
     return sql
   },
@@ -414,7 +423,7 @@ class RDSTools {
   }
 
   execute (sql) {
-    console.log(sql)
+    log(sql)
     return this.con.query(sql)
     .catch(ex => {
         console.error(ex);
@@ -489,7 +498,7 @@ const CONNECTION = {
         this.con = new Client(c);
       } catch(ex){}
     }
-    if (!this.con.__connected) {
+    if (!this.con._connected) {
       await this.con.connect()
     }
     return this.con
@@ -572,7 +581,7 @@ class RDS1 {
     this.columns = options.columns
     this.primaryIDColumn = options.primaryIDColumn
     // Sets the primaryType to UUID, all the time unless prescribed
-    this.primaryType = primaryType ? primaryType : PRIMARY_TYPES.UUID
+    this.primaryType = options.primaryType ? options.primaryType : PRIMARY_TYPES.UUID
     this.limit = null
     this.columnFuncs = {}   // only used in the bulk updates
     this.con = CONNECTION
@@ -739,6 +748,11 @@ class RDS1 {
     return this._execute(sql)
   }
 
+  _warningThisWillDeleteEverything () {
+    let sql = `DELETE FROM ${this.t}`
+    return this._execute(sql)
+  }
+
   _spreadJSON (column, record, primaryId) {
     let sql = SQL.spread(this.t, this.primaryIDColumn, primaryId, column, record)
     return this._execute(sql)
@@ -753,7 +767,7 @@ class RDS1 {
   }
 
   async _execute (sql) {
-    console.log(sql);
+    log(sql)
     return this.con.query(sql).catch(ex => {
       console.error(ex);
       return ex
@@ -761,8 +775,8 @@ class RDS1 {
   }
 
   async _executeObject (sql, record) {
-    console.log(sql)
-    console.log(JSON.stringify(record))
+    log(sql)
+    log(JSON.stringify(record))
     return this.con.queryObject(sql, Object.values(record))
     .catch(ex => {
         console.error(ex);

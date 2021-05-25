@@ -72,3 +72,4 @@ src/config/config.dev.js
 package-lock.json
 sql/
 
+src/config/
