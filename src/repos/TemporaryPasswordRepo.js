@@ -11,16 +11,15 @@ class TemporaryPasswordRepo extends RDS.RDS1 {
     })
   }
 
-  async insertNewUserIdAndPassword (userid, newRandomPassword, createdTimestamp) {
-    return this._insert({id: userid.toLowerCase(), password: newRandomPassword}).then(resp => {
-      resp.userId = resp.id
-      delete resp.id
+  async insertNewUserIdAndPassword (user_id, newRandomPassword, createdTimestamp) {
+    return this._insert({id: user_id.toLowerCase(), password: newRandomPassword}).then(resp => {
+      resp.user_id = resp.id
       return resp
     })
   }
 
-  async selectTemporaryPasswordById (userid) {
-    return await this._selectOnePid(userid.toLowerCase())
+  async selectTemporaryPasswordById (user_id) {
+    return await this._selectOnePid(user_id.toLowerCase())
   }
 
   async deleteAllOldTempPasswords () {
@@ -29,8 +28,8 @@ class TemporaryPasswordRepo extends RDS.RDS1 {
     await this._execute(sql)
   }
 
-  async deleteTempPassword (userid) {
-    return await this._delete(userid.toLowerCase())
+  async deleteTempPassword (user_id) {
+    return await this._delete(user_id.toLowerCase())
   }
 }
 

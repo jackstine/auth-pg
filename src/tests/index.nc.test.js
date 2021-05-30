@@ -11,9 +11,10 @@ let userInfo = {
   lastName: 'cukjati',
   username: 'jacobCukjati@gmail.com',
   email: 'jacobCukjati@gmail.com',
-  userId: 'jacobCukjati@gmail.com',
+  user_id: 'jacobCukjati@gmail.com',
   phone: '8503616563',
-  password: 'password'
+  password: 'password',
+  newPassword: 'newpassword'
 }
 let userInfoClone = {...userInfo}
 let vc = '3e5764ed-fa5a-4e40-be4e-fbe228d009d2'
@@ -53,10 +54,10 @@ describe("#index", function () {
       it('should create users and verification and password', function (done) {
         users.createUserVerificationAndPassword(userInfo).then(userAndVerification => {
           let {user, verification, password} = userAndVerification
-          expect(user.userId).to.be.equal(userInfo.userId.toLowerCase())
+          expect(user.user_id).to.be.equal(userInfo.user_id.toLowerCase())
           expect(user.verified).to.be.equal(false)
-          expect(verification.userId).to.be.equal(userInfo.userId.toLowerCase())
-          expect(verification.verificationCode).to.be.a('string')
+          expect(verification.user_id).to.be.equal(userInfo.user_id.toLowerCase())
+          expect(verification.verification_code).to.be.a('string')
           expect(password).to.be.undefined
           done()
         }).catch(console.error)
@@ -66,8 +67,9 @@ describe("#index", function () {
       it('#verifyUser', function (done) {
         users.createUserVerificationAndPassword(userInfo).then(userAndVerification => {
           let {verification} = userAndVerification
-          users.verifyUser(verification.verificationCode).then(success => {
-            expect(success).to.be.equal(true)
+          users.verifyUser(verification.verification_code).then(user => {
+            expect(user.verified).to.be.equal(true)
+            expect(user.user_id).to.be.equal(userInfo.user_id.toLowerCase())
             done()
           }).catch(console.error)
         }).catch(console.error)
@@ -76,9 +78,9 @@ describe("#index", function () {
     describe('#forgotPassword', function (done) {
       it('should return password when forgotten', function (done) {
         users.createUserVerificationAndPassword(userInfo).then(userAndVerification => {
-          users.forgotPassword(userInfo.userId).then(userInfoTempPassword => {
-            let {userId, password, expiresIn} = userInfoTempPassword
-            expect(userId).to.be.equal(userInfo.userId.toLowerCase())
+          users.forgotPassword(userInfo.user_id).then(userInfoTempPassword => {
+            let {user_id, password, expiresIn} = userInfoTempPassword
+            expect(user_id).to.be.equal(userInfo.user_id.toLowerCase())
             expect(password).to.be.a('string')
             expect(expiresIn).to.be.a('number')
             done()
@@ -90,9 +92,9 @@ describe("#index", function () {
       it('should do something special', function (done) {
         // JAKE TODO this needs the authentication package to be pushed
         users.createUserVerificationAndPassword(userInfo).then(userAndVerification => {
-          users.forgotPassword(userInfo.userId).then(userInfoTempPassword => {
-            users.resetPasswordFromTemporaryPassword(userInfo.userId, userInfoTempPassword.password, userInfo.newPassword).then(resp => {
-              expect(resp.temp).to.be.equal(true)
+          users.forgotPassword(userInfo.user_id).then(userInfoTempPassword => {
+            users.resetPasswordFromTemporaryPassword(userInfo.user_id, userInfoTempPassword.password, userInfo.newPassword).then(resp => {
+              expect(resp).to.be.equal(true)
               done()
             }).catch(console.error)
           }).catch(console.error)
@@ -119,7 +121,7 @@ describe("#index", function () {
     })
     describe('#generateToken', function () {
       it('it should generate a token', function (done) {
-        token.generateToken(userInfo.userId).then(generatedAuthToken => {
+        token.generateToken(userInfo.user_id).then(generatedAuthToken => {
           expect(generatedAuthToken).to.be.an('string')
           done()
         }).catch(console.error)
@@ -142,12 +144,23 @@ describe("#index", function () {
       it('it should log in the user given a real password', function (done) {
         let password = userInfo.password
         users.createUserVerificationAndPassword(userInfo).then(async (userVerification) => {
-          let loginResponse = await token.login(userInfo.userId, password)
+          let loginResponse = await token.login(userInfo.user_id, password)
           expect(loginResponse.success).to.be.equal(true)
           expect(loginResponse.token).to.be.a('string')
           done()
         })
-      })
+      })//END OF IT
+      it('it should  be able to login with a temporary pasword', function (done) {
+        let password = userInfo.password
+        users.createUserVerificationAndPassword(userInfo).then(async (userVerification) => {
+          let userInfoTempPassword = await users.forgotPassword(userInfo.user_id)
+          let tempPasswordSuccess = await token.login(userInfo.user_id, userInfoTempPassword.password)
+          console.log(tempPasswordSuccess)
+          expect(tempPasswordSuccess.verifiedWithTemporary).to.be.equal(true)
+          expect(tempPasswordSuccess.success).to.be.equal(true)
+          done()
+        })
+      })//END OF IT
     })
   })
 })

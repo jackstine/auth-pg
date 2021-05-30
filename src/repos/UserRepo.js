@@ -14,12 +14,12 @@ class UserRepo extends RDS.RDS1 {
   }
 
   // TODO Currently not used in the Plugin
-  async getUserByUserId (userId) {
-    return await this._selectOnePid(userId.toLowerCase())
+  async getUserByUserId (user_id) {
+    return await this._selectOnePid(user_id.toLowerCase())
   }
 
-  async getUserIsVerified (userId) {
-    return await this._selectManyFromKey('user_id', userId.toLowerCase(), ['verified']).then(resp => {
+  async getUserIsVerified (user_id) {
+    return await this._selectManyFromKey('user_id', user_id.toLowerCase(), ['verified']).then(resp => {
       if (resp.length === 1) {
         return resp[0].verified
       } else {
@@ -29,27 +29,21 @@ class UserRepo extends RDS.RDS1 {
   }
   // TODO Currently not used in the Plugin
   async updateUser (record) {
-    let newRecord = {...record}
-    newRecord.user_id = newRecord.userId
-    delete newRecord.userId
-    return await this._update(newRecord)
+    return await this._update(record)
   }
 
   async createUser (userInfo) {
     // usernames are case sensitive
     let record = {
-      id: uuid4(), user_id: userInfo.userId, verified: false
+      id: uuid4(), user_id: userInfo.user_id, verified: false
     }
-    return await this._insert(record).then(record => {
-      record.userId = record.user_id
-      delete record.user_id
-      return record
-    })
+    return await this._insert(record)
   }
 
-  async verifyUser (userId) {
-    return await this._update({user_id: userId.toLowerCase(), verified: true}).then(res => {
-      return true
+  async verifyUser (user_id) {
+    let record = {user_id: user_id.toLowerCase(), verified: true}
+    return await this._update(record).then(resp => {
+      return record
     })
   }
 

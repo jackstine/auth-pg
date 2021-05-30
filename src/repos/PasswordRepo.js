@@ -11,8 +11,8 @@ class PasswordRepo extends RDS.RDS1 {
     })
   }
 
-  async insertPassword({userId, password, key}) {
-    return this._insert({id: userId, password, key})
+  async insertPassword({user_id, password, key}) {
+    return this._insert({id: user_id, password, key})
   }
 
   async update (id, oldPassword, newPassword) {

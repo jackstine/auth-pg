@@ -6,9 +6,10 @@ const {PasswordRepo} = require('./repos/PasswordRepo')
 const {auth, createAuthentication} = require('@nodeauth/authentication')
 
 let __config = null
-let __auth = null
+let __auth = {}
 
 module.exports = {
+  auth: __auth,
   async create(options) {
     let config = {
       plugin: {
@@ -21,6 +22,9 @@ module.exports = {
     }
     await createAuthentication(config)
     __config = config
+    for (let key of Object.keys(auth)) {
+      __auth[key] = auth[key]
+    }
     return {config, auth}
   },
   __reset () {
