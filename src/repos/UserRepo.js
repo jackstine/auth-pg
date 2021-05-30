@@ -35,7 +35,8 @@ class UserRepo extends RDS.RDS1 {
   async createUser (userInfo) {
     // usernames are case sensitive
     let record = {
-      id: uuid4(), user_id: userInfo.user_id, verified: false
+      ...userInfo,
+      id: uuid4(), verified: false
     }
     return await this._insert(record)
   }
@@ -52,6 +53,10 @@ class UserRepo extends RDS.RDS1 {
     return await this._selectManyFromKey('email', email.toLowerCase()).then(resp => {
       return resp.length > 0
     })
+  }
+
+  async getUser (user_id) {
+    return await this._selectOnePid(user_id)
   }
 }
 

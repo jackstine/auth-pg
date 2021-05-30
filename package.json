@@ -1,6 +1,6 @@
 {
   "name": "@nodeauth/auth-pg",
-  "version": "0.0.4",
+  "version": "0.0.6",
   "description": "pg plugin for @nodeauth/authentication",
   "main": "src/index.js",
   "scripts": {
@@ -17,7 +17,7 @@
   "author": "jake cukjati",
   "license": "ISC",
   "dependencies": {
-    "@nodeauth/authentication": "^0.0.8",
+    "@nodeauth/authentication": "^0.0.11",
     "pg": "^8.6.0",
     "uuid": "^8.3.2"
   },
