@@ -147,7 +147,8 @@ describe("#index", function () {
     describe('#generateToken', function () {
       it('should generate a token', function (done) {
         token.generateToken(userInfo.user_id).then(generatedAuthToken => {
-          expect(generatedAuthToken).to.be.an('string')
+          expect(generatedAuthToken.token).to.be.an('string')
+          expect(generatedAuthToken.expires).to.be.an('number')
           done()
         }).catch(console.error)
       })
@@ -155,8 +156,9 @@ describe("#index", function () {
     describe('#authenticateToken', function () {
       it('should authentication a real token, and dis auth a bad token', function (done) {
         token.generateToken(userInfo).then(async generatedAuthToken => {
-          expect(generatedAuthToken).to.be.an('string')
-          let auth = await token.authenticateToken(generatedAuthToken)
+          expect(generatedAuthToken.token).to.be.an('string')
+          expect(generatedAuthToken.expires).to.be.an('number')
+          let auth = await token.authenticateToken(generatedAuthToken.token)
           auth.should.be.equal(true)
           auth = await token.authenticateToken('eyJhbGciOiJIUzI1NiJ9.bmFtZUByYWVtaXN0ZW1haWwuY29t.d5qu_8bzMwhWygglDWKbY9n4daCYbnbR4w-enghUI5c')
           expect(auth).to.be.equal(false)
@@ -170,7 +172,8 @@ describe("#index", function () {
         users.createUserVerificationAndPassword(userInfo).then(async (userVerification) => {
           let loginResponse = await token.login(userInfo.user_id, password)
           expect(loginResponse.success).to.be.equal(true)
-          expect(loginResponse.token).to.be.a('string')
+          expect(loginResponse.token.token).to.be.a('string')
+          expect(loginResponse.token.expires).to.be.a('number')
           done()
         })
       })//END OF IT
