@@ -53,12 +53,14 @@ describe("#index", function () {
     describe('#createUserVerificationAndPassword', function () {
       it('should create users and verification and password', function (done) {
         users.createUserVerificationAndPassword(userInfo).then(userAndVerification => {
-          let {user, verification, password} = userAndVerification
+          let {user, verification, password, token} = userAndVerification
           expect(user.user_id).to.be.equal(userInfo.user_id.toLowerCase())
           expect(user.verified).to.be.equal(false)
           expect(verification.user_id).to.be.equal(userInfo.user_id.toLowerCase())
           expect(verification.verification_code).to.be.a('string')
           expect(password).to.be.undefined
+          expect(token.token).to.be.a('string')
+          expect(token.expires).to.be.a('number')
           done()
         }).catch(console.error)
       })
@@ -89,8 +91,7 @@ describe("#index", function () {
       })
     })
     describe('#resetPasswordFromTemporaryPassword', function (done) {
-      it('should do something special', function (done) {
-        // JAKE TODO this needs the authentication package to be pushed
+      it('should reset the password from the temporary password', function (done) {
         users.createUserVerificationAndPassword(userInfo).then(userAndVerification => {
           users.forgotPassword(userInfo.user_id).then(userInfoTempPassword => {
             users.resetPasswordFromTemporaryPassword(userInfo.user_id, userInfoTempPassword.password, newPassword).then(resp => {
@@ -124,6 +125,28 @@ describe("#index", function () {
           expect(user).to.be.null
           done()
         })
+      })
+    })
+    describe('#updateUser', function () {
+      it('should update the user', function (done) {
+        users.createUserVerificationAndPassword(userInfo).then(async userAndVerification => {
+          let {user, verification, password} = userAndVerification
+          let resp = await users.updateUser({user_id: user.user_id, first_name: 'mike'})
+          expect(resp.success).to.be.equal(true)
+          expect(resp.user.user_id).to.be.equal(user.user_id)
+          expect(resp.user.first_name).to.be.equal('mike')
+          let updatedUser = await users.getUser(user.user_id)
+          expect(updatedUser.first_name).to.be.equal('mike')
+          done()
+        }).catch(console.error)
+      })
+      it('should no update the user if the user does not exist', function (done) {
+        users.updateUser({user_id: 'mike', first_name: 'mike'}).then(async updateResp => {
+          expect(updateResp.success).to.be.equal(false)
+          updateResp = await users.updateUser(null)
+          expect(updateResp.success).to.be.equal(false)
+          done()
+        }).catch(console.error)
       })
     })
   })
@@ -171,11 +194,15 @@ describe("#index", function () {
         let password = userInfo.password
         users.createUserVerificationAndPassword(userInfo).then(async (userVerification) => {
           let loginResponse = await token.login(userInfo.user_id, password)
+          let lu = loginResponse.user
           expect(loginResponse.success).to.be.equal(true)
           expect(loginResponse.token.token).to.be.a('string')
           expect(loginResponse.token.expires).to.be.a('number')
+          userInfo.id = lu.id
+          userInfo.created_date = lu.created_date
+          expect(lu).to.deep.equal({...userInfo, verified: false})
           done()
-        })
+        }).catch(console.error)
       })//END OF IT
       it('should  be able to login with a temporary pasword', function (done) {
         users.createUserVerificationAndPassword(userInfo).then(async (userVerification) => {

@@ -6,16 +6,10 @@ class UserRepo extends RDS.RDS1 {
     super({
       tableName: 'users',
       schema: 'authentication',
-      // TODO need to shorten and figureout our table
       columns: ['id', 'first_name', 'last_name', 'username', 'user_id', 'email', 'phone', 'verified', 'created_date'],
       primaryIDColumn: ['user_id'],
       pgClient: options.pgClient
     })
-  }
-
-  // TODO Currently not used in the Plugin
-  async getUserByUserId (user_id) {
-    return await this._selectOnePid(user_id.toLowerCase())
   }
 
   async getUserIsVerified (user_id) {
@@ -27,15 +21,21 @@ class UserRepo extends RDS.RDS1 {
       }
     })
   }
-  // TODO Currently not used in the Plugin
+
   async updateUser (record) {
-    return await this._update(record)
+    record.user_id = record.user_id.toLowerCase()
+    return await this._update(record).then(resp => {
+      if (resp.rowCount > 1) {
+        throw Error(`A user has updated more than 1 users, ${record.user_id}`)
+      }
+      return resp.rowCount === 1
+    }).catch(resp => false)
   }
 
   async createUser (userInfo) {
-    // usernames are case sensitive
     let record = {
       ...userInfo,
+      user_id: userInfo.user_id.toLowerCase(),
       id: uuid4(), verified: false
     }
     return await this._insert(record)
@@ -48,15 +48,8 @@ class UserRepo extends RDS.RDS1 {
     })
   }
 
-  // TODO Currently not used in the Plugin
-  async hasEmail (email) {
-    return await this._selectManyFromKey('email', email.toLowerCase()).then(resp => {
-      return resp.length > 0
-    })
-  }
-
   async getUser (user_id) {
-    return await this._selectOnePid(user_id)
+    return await this._selectOnePid(user_id.toLowerCase())
   }
 }
 
