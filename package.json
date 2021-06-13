@@ -1,10 +1,11 @@
 {
   "name": "@nodeauth/auth-pg",
-  "version": "0.0.12",
+  "version": "0.0.21",
   "description": "pg plugin for @nodeauth/authentication",
   "main": "src/index.js",
   "scripts": {
     "test": "export AUTH_ENV=dev && mocha --file src/tests/setup_test.js $(find src/tests/* -name '*.nc.test.js')",
+    "test-inspect": "export AUTH_ENV=dev && mocha --inspect --file src/tests/setup_test.js $(find src/tests/* -name '*.nc.test.js')",
     "test-complete": "export AUTH_ENV=dev && mocha --file src/tests/setup_test.js $(find src/tests/* -name '*.complete.test.js')",
     "latest": "npm install @nodeauth/authentication@latest",
     "__delete_data": "export AUTH_ENV=dev && node src/scripts/__deleteData.js"
@@ -19,7 +20,7 @@
   "author": "jake cukjati",
   "license": "ISC",
   "dependencies": {
-    "@nodeauth/authentication": "^0.0.17",
+    "@nodeauth/authentication": "^0.0.26",
     "pg": "^8.6.0",
     "uuid": "^8.3.2"
   },

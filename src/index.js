@@ -20,7 +20,7 @@ module.exports = {
         PasswordRepo: new PasswordRepo(options)
       }
     }
-    await createAuthentication(config)
+    await createAuthentication({...config, ...options})
     __config = config
     for (let key of Object.keys(auth)) {
       __auth[key] = auth[key]

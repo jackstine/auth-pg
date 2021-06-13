@@ -1,37 +1,37 @@
-const RDS = require('../serverlogic/RDS')
+const RDS = require("../serverlogic/RDS");
 
 class PasswordRepo extends RDS.RDS1 {
   constructor(options) {
     super({
-      tableName: 'passwords',
-      schema: 'authentication',
-      columns: ['id', 'password', 'key'],
-      primaryIDColumn: ['id'],
-      pgClient: options.pgClient
-    })
+      tableName: "passwords",
+      schema: "authentication",
+      columns: ["id", "password", "key"],
+      primaryIDColumn: ["id"],
+      pgClient: options.pgClient,
+    });
   }
 
-  async insertPassword({user_id, password, key}) {
-    return this._insert({id: user_id, password, key})
+  async insertPassword({ email, password, key }) {
+    return this._insert({ id: email, password, key });
   }
 
-  async update (id, oldPassword, newPassword) {
+  async update(id, oldPassword, newPassword) {
     if (await this.checkPassword(id, oldPassword)) {
-      return await this.__OverrideUpdatePasswordNeverUseOnlyDireSituations(id, newPassword)
+      return await this.__OverrideUpdatePasswordNeverUseOnlyDireSituations(id, newPassword);
     }
   }
 
-  async deletePasswordById (id) {
-    return this._delete(id)
+  async deletePasswordById(id) {
+    return this._delete(id);
   }
 
-  async updatePasswordOnlyShouldBeUsedOnce (id, password, key) {
-    return this._update({id, password, key})
+  async updatePasswordOnlyShouldBeUsedOnce(id, password, key) {
+    return this._update({ id, password, key });
   }
 
-  async getPasswordForId (id) {
-    return await this._selectOnePid(id)
+  async getPasswordForId(id) {
+    return await this._selectOnePid(id);
   }
 }
 
-module.exports = {PasswordRepo}
+module.exports = { PasswordRepo };
